@@ -33,7 +33,7 @@ module.exports = function (req, res) {
 	}
 
 	req.list.model.findOne()
-		.where('isDraft', false)
+		.where('isDraft', {$ne: true})
 		.where('_id').in(ids)
 		.then(function (result) {
 			const isContributor = req.user && req.user.role.key === 'contributor';
