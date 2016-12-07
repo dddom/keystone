@@ -6,10 +6,6 @@ var templatePath = path.resolve(__dirname, '../templates/index.html');
 
 const acl = {
 	contributor: {
-		users: [
-			'User',
-			'UserRole',
-		],
 		shared: [
 			'PostCategory',
 		],
@@ -24,6 +20,17 @@ const acl = {
 			'AboutProcessItem',
 			'Skill',
 		],
+		dashboards: [
+		    'DashboardsPage',
+	    ],
+	    contact: [
+		    'ContactForm',
+		    'ContactFormResponse',
+		],
+		users: [
+			'User',
+			'UserRole',
+		]
 	},
 };
 
