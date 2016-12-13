@@ -5,33 +5,55 @@ var path = require('path');
 var templatePath = path.resolve(__dirname, '../templates/index.html');
 
 const acl = {
-	contributor: {
+	admin: {
 		shared: [
-			'PostCategory',
+			'Asset',
+			'Endorsement',
+			'Hero',
+			'Post',
+			'PostCategory'
 		],
 		homepage: [
 			'Benefit',
-			'DesOverview',
+			'DesOverview'
 		],
 		about: [
 			'AboutSection',
 			'AboutPrinciple',
 			'AboutFeature',
 			'AboutProcessItem',
-			'Skill',
+			'Skill'
 		],
 		dashboards: [
-		    'DashboardsPage',
+			'DashboardsPage',
+		    'Dashboard',
 	    ],
-	    contact: [
-		    'ContactForm',
-		    'ContactFormResponse',
+		products: [
+			'Product'
+		],
+		contact: [
+			'ContactForm',
+			'ContactFormResponse'
 		],
 		users: [
 			'User',
-			'UserRole',
+			'UserRole'
 		]
 	},
+	contributor: {
+		shared: [
+			'Asset',
+			'Endorsement',
+			'Hero',
+			'Post',
+		],
+		dashboards: [
+		    'Dashboard',
+	    ],
+		products: [
+			'Product'
+		]
+	}
 };
 
 /**
@@ -43,7 +65,7 @@ const acl = {
  * @return {boolean}
  */
 function isSectionAccessible (key, access) {
-	return !access || !access.includes(key);
+	return access && access.includes(key);
 }
 
 /**
@@ -55,7 +77,7 @@ function isSectionAccessible (key, access) {
  * @return {*}
  */
 function restrictNav (sections, access) {
-	if (Array.isArray(sections) && access) {
+	if (Array.isArray(sections)) {
 		return sections
 			.filter(section => isSectionAccessible(section.key, access));
 	}
@@ -90,23 +112,27 @@ module.exports = function IndexRoute (req, res) {
 		default: _.cloneDeep(keystone.nav),
 	};
 
-	if (user && user.role && !keystone.roleNav[user.role.key]) {
-		keystone.roleNav[user.role.key] = _.cloneDeep(keystone.roleNav.default);
-	}
+	keystone.roleNav = keystone.roleNav || {
+		default: _.cloneDeep(keystone.nav),
+	};
 
-	if (user && user.role && acl[user.role.key]) {
+	if (user && user.role && !keystone.roleNav[user.role.key]) {
 		console.log(`Restricting nav for ${user.role.key}`);
 
 		const access = acl[user.role.key];
+		const menu = _.cloneDeep(keystone.roleNav.default);
 
-		keystone.roleNav[user.role.key].sections
-			.forEach(function (section, index, sections) {
+		menu.sections = menu.sections
+			.map(function (section) {
 				section.lists = restrictNav(section.lists, access[section.key]);
-				if (section.lists.length === 0) {
-					sections.splice(sections.indexOf(section), 1);
-				}
-			});
+
+				return section;
+			})
+			.filter(section => section.lists.length);
+
+		keystone.roleNav[user.role.key] = menu;
 	}
+
 	keystone.nav = keystone.roleNav[user.role.key];
 	/* Restricting NAV */
 
