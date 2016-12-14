@@ -42,16 +42,15 @@ module.exports = function (req, res) {
 					ignoreNoEdit: true,
 					user: req.user,
 				}, function () {
-					const data = {
+					item.set({
 						hasDraft: true,
-						draftItem: draftItem.id,
-					};
+						draftItem: draftItem.id
+					});
 
-					const options = {
-						ignoreNoEdit: true,
-					};
-
-					req.list.updateItem(item, data, options, returnItem);
+					return item
+						.save()
+						.then(() => returnItem(null, draftItem.id))
+						.catch(returnItem);
 				});
 			});
 		}
