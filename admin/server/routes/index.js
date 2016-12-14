@@ -87,9 +87,17 @@ function restrictNav (sections, access) {
 
 module.exports = function IndexRoute (req, res) {
 	var keystone = req.keystone;
+	const user = req.user;
 	var lists = {};
+	const accessibleSections = _.flatten(_.values(acl[user.role.key]));
 	_.forEach(keystone.lists, function (list, key) {
 		lists[key] = list.getOptions();
+
+		if (!isSectionAccessible(list.key, accessibleSections)) {
+			lists[key].nocreate = true;
+			lists[key].noedit = true;
+			lists[key].nodelete = true;
+		}
 	});
 
 	var UserList = keystone.list(keystone.get('user model'));
@@ -106,8 +114,6 @@ module.exports = function IndexRoute (req, res) {
 	}
 
 	/* Restricting NAV */
-	const user = req.user;
-
 	keystone.roleNav = keystone.roleNav || {
 		default: _.cloneDeep(keystone.nav),
 	};
