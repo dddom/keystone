@@ -11,34 +11,34 @@ const acl = {
 			'Endorsement',
 			'Hero',
 			'Post',
-			'PostCategory'
+			'PostCategory',
 		],
 		homepage: [
 			'Benefit',
-			'DesOverview'
+			'DesOverview',
 		],
 		about: [
 			'AboutSection',
 			'AboutPrinciple',
 			'AboutFeature',
 			'AboutProcessItem',
-			'Skill'
+			'Skill',
 		],
 		dashboards: [
 			'DashboardsPage',
-		    'Dashboard',
-	    ],
+			'Dashboard',
+		],
 		products: [
-			'Product'
+			'Product',
 		],
 		contact: [
 			'ContactForm',
-			'ContactFormResponse'
+			'ContactFormResponse',
 		],
 		users: [
 			'User',
-			'UserRole'
-		]
+			'UserRole',
+		],
 	},
 	contributor: {
 		shared: [
@@ -48,12 +48,12 @@ const acl = {
 			'Post',
 		],
 		dashboards: [
-		    'Dashboard',
-	    ],
+			'Dashboard',
+		],
 		products: [
-			'Product'
-		]
-	}
+			'Product',
+		],
+	},
 };
 
 /**
