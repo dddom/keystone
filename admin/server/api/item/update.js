@@ -44,7 +44,7 @@ module.exports = function (req, res) {
 				}, function () {
 					item.set({
 						hasDraft: true,
-						draftItem: draftItem.id
+						draftItem: draftItem.id,
 					});
 
 					return item

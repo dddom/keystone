@@ -31,6 +31,18 @@ var PrimaryNavigation = React.createClass({
 			navIsVisible: window.innerWidth >= 768,
 		});
 	},
+	// Render the user guide button
+	renderUserGuide () {
+		return (
+			<PrimaryNavItem
+				label="octicon-info"
+				href="/user-guide"
+				title="User guide"
+			>
+				<span className="octicon octicon-info" />
+			</PrimaryNavItem>
+		);
+	},
 	// Render the sign out button
 	renderSignout () {
 		if (!this.props.signoutUrl) return null;
@@ -63,6 +75,7 @@ var PrimaryNavigation = React.createClass({
 	renderFrontLink () {
 		return (
 			<ul className="app-nav app-nav--primary app-nav--right">
+				{this.renderUserGuide()}
 				{this.renderBackButton()}
 				{this.renderSignout()}
 			</ul>
