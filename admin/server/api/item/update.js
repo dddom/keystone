@@ -1,3 +1,24 @@
+function copyDocument (origin, destination) {
+	const path = destination.list.autokey && destination.list.autokey.path
+		? [destination.list.autokey.path]
+		: [];
+	const uniqueProperties = Object
+		.entries(destination.list.fields)
+		.filter(([key, value]) => value.options.unique)
+		.map(([key, value]) => key)
+		.concat(['_id'], path);
+
+	for (let [prop, value] of Object.entries(origin.toObject())) {
+		if (uniqueProperties.includes(prop)) {
+			continue;
+		}
+
+		destination[prop] = value;
+	}
+
+	return destination;
+}
+
 module.exports = function (req, res) {
 	var keystone = req.keystone;
 	if (!keystone.security.csrf.validate(req)) {
@@ -20,39 +41,49 @@ module.exports = function (req, res) {
 			});
 		}
 
-		// CASE: Edititng FROM A DRAFT - done
 		// EDITING FROM THE ORIGINAL ITEM
-		if (item.isDraftable && req.user.role.key === 'contributor' && !item.isDraft) {
-			return req.list.model.findOne({
-				isDraft: true,
-				originalItem: req.params.id,
-			})
-			.then(draftItem => {
-				if (!draftItem) {
-					draftItem = new req.list.model();
-				}
-
-				Object.assign(req.body, {
-					isDraft: true,
-					originalItem: req.params.id,
-				});
-
-				req.list.updateItem(draftItem, req.body, {
+		if (item.isDraftable && req.user.role.key === 'contributor') {
+			if (item.isDraft) {
+				const options = {
 					files: req.files,
 					ignoreNoEdit: true,
 					user: req.user,
-				}, function () {
-					item.set({
-						hasDraft: true,
-						draftItem: draftItem.id,
+				};
+
+				return req.list.updateItem(item, req.body, options, returnItem);
+			}
+
+			return req.list.model
+				.findOne({
+					isDraft: true,
+					originalItem: req.params.id,
+				})
+				.then(draftItem => {
+					if (!draftItem) {
+						draftItem = copyDocument(item, new req.list.model());
+					}
+
+					const body = Object.assign({}, req.body, {
+						isDraft: true,
+						originalItem: req.params.id,
 					});
 
-					return item
-						.save()
-						.then(() => returnItem(null, draftItem.id))
-						.catch(returnItem);
+					req.list.updateItem(draftItem, body, {
+						files: req.files,
+						ignoreNoEdit: true,
+						user: req.user,
+					}, function () {
+						item.set({
+							hasDraft: true,
+							draftItem: draftItem.id,
+						});
+
+						return item
+							.save()
+							.then(() => returnItem(null, draftItem.id))
+							.catch(returnItem);
+					});
 				});
-			});
 		}
 
 		// If this is a draft && user is not contributor
